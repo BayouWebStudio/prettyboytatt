@@ -270,5 +270,36 @@
     }, { threshold: 0.12 });
     document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
   </script>
+
+  <script>
+  async function handleBooking(e) {
+    e.preventDefault();
+    var btn = e.target.querySelector('button[type="submit"]') || e.target.querySelector('.btn-submit');
+    var origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      var name = document.getElementById('b-name').value.trim();
+      var email = document.getElementById('b-email').value.trim();
+      var phone = (document.getElementById('b-phone') || {}).value || '';
+      var service = (document.getElementById('b-placement') || {}).value || '';
+      var message = document.getElementById('b-vision').value.trim();
+      if (!name || !email || !message) { alert('Please fill in all required fields.'); btn.disabled = false; btn.textContent = origText; return; }
+      var res = await fetch('https://curious-lemming-262.convex.site/api/booking/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: 'prettyboytatt', name: name, email: email, phone: phone || undefined, service: service || undefined, message: message })
+      });
+      if (!res.ok) throw new Error('Network error');
+      e.target.reset();
+      btn.textContent = '\u2713 Sent!';
+      setTimeout(function() { btn.textContent = origText; btn.disabled = false; }, 3000);
+    } catch(err) {
+      alert('Something went wrong. Please try again.');
+      btn.textContent = origText;
+      btn.disabled = false;
+    }
+  }
+  </script>
 </body>
 </html>
